@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permaculture Tycoon</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #3b6c3b;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin: 10px;
+            text-shadow: 0px 0px 5px white;
+        }
+        #money {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        .farm {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            gap: 5px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .tile {
+            width: 60px;
+            height: 60px;
+            background-color: #654321;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tile:hover {
+            background-color: #805c41;
+        }
+        .shop {
+            margin-top: 20px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .shop-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .shop-item:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Permaculture Tycoon 🌱</h1>
+    <p id="money">Money: $5</p>
+
+    <div class="farm" id="farm"></div>
+
+    <div class="shop">
+        <h2>Upgrades</h2>
+        <div class="shop-item" id="betterSeeds">Better Seeds (+$2 per crop) - Cost: $10</div>
+        <div class="shop-item" id="compost">Compost Boost (Faster Growth) - Cost: $20</div>
+    </div>
+
+    <script>
+        let money = 5;
+        let cropValue = 2;
+        let growthTime = 3000;
+        let farmSize = 5;
+        let farm = [];
+
+        function updateUI() {
+            document.getElementById("money").innerText = "Money: $" + money;
+            document.getElementById("betterSeeds").classList.toggle("disabled", money < 10);
+            document.getElementById("compost").classList.toggle("disabled", money < 20);
+        }
+
+        function createFarm() {
+            let farmElement = document.getElementById("farm");
+            farmElement.innerHTML = "";
+            for (let i = 0; i < farmSize * farmSize; i++) {
+                let tile = document.createElement("div");
+                tile.classList.add("tile");
+                tile.dataset.state = "empty"; // Possible states: empty, growing, ready
+                tile.addEventListener("click", () => interactWithTile(tile));
+                farm.push(tile);
+                farmElement.appendChild(tile);
+            }
+        }
+
+        function interactWithTile(tile) {
+            if (tile.dataset.state === "empty") {
+                tile.dataset.state = "growing";
+                tile.style.backgroundColor = "#228B22"; // Growing crop color
+                setTimeout(() => {
+                    tile.dataset.state = "ready";
+                    tile.style.backgroundColor = "#32CD32"; // Fully grown
+                }, growthTime);
+            } else if (tile.dataset.state === "ready") {
+                money += cropValue;
+                tile.dataset.state = "empty";
+                tile.style.backgroundColor = "#654321"; // Reset to soil
+                updateUI();
+            }
+        }
+
+        document.getElementById("betterSeeds").addEventListener("click", () => {
+            if (money >= 10) {
+                money -= 10;
+                cropValue += 2;
+                updateUI();
+            }
+        });
+
+        document.getElementById("compost").addEventListener("click", () => {
+            if (money >= 20) {
+                money -= 20;
+                growthTime *= 0.8; // Crops grow 20% faster
+                updateUI();
+            }
+        });
+
+        createFarm();
+        updateUI();
+    </script>
+</body>
+</html>
